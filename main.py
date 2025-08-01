@@ -8,6 +8,10 @@ app = FastAPI()
 
 TARGET_API_URL = "https://api.nopaperforms.io/application/v1/list"
 
+@app.get("/ping")
+def ping():
+    return {"status": "ok"}
+
 @app.post("/mit-studentfetch")
 async def proxy_handler(request: Request):
     # Read incoming request body and headers
