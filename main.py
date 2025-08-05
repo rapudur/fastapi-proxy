@@ -7,6 +7,7 @@ app = FastAPI()
 TARGET_API_URL = "https://api.nopaperforms.io/application/v1/list"
 
 @app.get("/ping")
+@app.head("/ping")
 def ping():
     return {"status": "ok"}
 
@@ -34,3 +35,4 @@ async def proxy_handler(request: Request):
         content=response.json(),
         status_code=response.status_code
     )
+
