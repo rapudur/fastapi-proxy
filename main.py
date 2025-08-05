@@ -2,8 +2,6 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import httpx
 
-##     python -m uvicorn main:app --reload
-
 app = FastAPI()
 
 TARGET_API_URL = "https://api.nopaperforms.io/application/v1/list"
@@ -14,17 +12,17 @@ def ping():
 
 @app.post("/mit-studentfetch")
 async def proxy_handler(request: Request):
-    # Read incoming request body and headers
     incoming_body = await request.body()
-    incoming_headers = dict(request.headers)
 
-    # Optional: clean up headers if required
-    # e.g., remove 'host', 'content-length' or sensitive ones if needed
-    excluded_headers = {"host", "content-length", "accept-encoding", "content-type"}
-    headers_to_forward = {k: v for k, v in incoming_headers.items() if k.lower() not in excluded_headers}
-    headers_to_forward["Content-Type"] = "application/json"
+    # Required headers for the Nopaperforms API
+    headers_to_forward = {
+        "Content-Type": "application/json",
+        "secret-key": "1c58c83c90534ec5b760c3c12ef98e30",
+        "access-key": "883fff67e92c496eb4efe2049397a745",
+        # Uncomment below if the API also needs a session cookie
+        # "Cookie": "PHPSESSID=agtl12dsjsphunai7q8k03u26h"
+    }
 
-    # Forward request to target API using HTTPX
     async with httpx.AsyncClient() as client:
         response = await client.post(
             TARGET_API_URL,
@@ -32,9 +30,7 @@ async def proxy_handler(request: Request):
             headers=headers_to_forward
         )
 
-    # Return response from target API to the original customer
     return JSONResponse(
         content=response.json(),
-        status_code=response.status_code,
-        headers=dict(response.headers)
+        status_code=response.status_code
     )
